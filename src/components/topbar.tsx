@@ -8,6 +8,8 @@ import { logout } from "@/app/actions/auth";
 
 const TITLES: Record<string, string> = {
   "/": "Dashboard",
+  "/prospect": "Prospecção",
+  "/import": "Importar leads",
   "/kanban": "Funil de Vendas",
   "/leads": "Leads",
   "/chips": "Chips & Aquecedor",
