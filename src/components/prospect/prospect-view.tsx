@@ -14,6 +14,8 @@ import {
   MapPin,
   Phone,
   CheckCircle2,
+  Instagram,
+  Facebook,
 } from "lucide-react";
 import {
   startProspect,
@@ -282,6 +284,7 @@ export function ProspectView() {
                     <th className="px-3 py-3 font-medium">Google</th>
                     <th className="px-3 py-3 font-medium">Local</th>
                     <th className="px-3 py-3 font-medium">Contato</th>
+                    <th className="px-3 py-3 font-medium">Acessar</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -349,12 +352,42 @@ export function ProspectView() {
                           "—"
                         )}
                       </td>
+                      <td className="px-3 py-2.5">
+                        <div className="flex items-center gap-1.5">
+                          {r.mapsUrl && (
+                            <IconA href={r.mapsUrl} title="Google Maps" color="#22c55e">
+                              <MapPin className="h-3.5 w-3.5" />
+                            </IconA>
+                          )}
+                          {r.website && (
+                            <IconA href={r.website} title="Site" color="#0ea5e9">
+                              <Globe className="h-3.5 w-3.5" />
+                            </IconA>
+                          )}
+                          {r.socials?.instagram && (
+                            <IconA href={r.socials.instagram} title="Instagram" color="#ec4899">
+                              <Instagram className="h-3.5 w-3.5" />
+                            </IconA>
+                          )}
+                          {r.socials?.facebook && (
+                            <IconA href={r.socials.facebook} title="Facebook" color="#3b82f6">
+                              <Facebook className="h-3.5 w-3.5" />
+                            </IconA>
+                          )}
+                          {!r.mapsUrl &&
+                            !r.website &&
+                            !r.socials?.instagram &&
+                            !r.socials?.facebook && (
+                              <span className="text-xs text-muted">—</span>
+                            )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                   {filtered.length === 0 && (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="px-3 py-10 text-center text-sm text-muted"
                       >
                         Nenhum resultado com os filtros atuais.
@@ -368,5 +401,30 @@ export function ProspectView() {
         </div>
       )}
     </div>
+  );
+}
+
+function IconA({
+  href,
+  title,
+  color,
+  children,
+}: {
+  href: string;
+  title: string;
+  color: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      title={title}
+      className="flex h-6 w-6 items-center justify-center rounded-md border transition hover:brightness-110"
+      style={{ color, background: `${color}14`, borderColor: `${color}33` }}
+    >
+      {children}
+    </a>
   );
 }

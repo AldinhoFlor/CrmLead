@@ -6,6 +6,15 @@ import { createClient } from "@/lib/supabase/server";
 const APIFY_ACTOR = "compass~crawler-google-places";
 const APIFY_BASE = "https://api.apify.com/v2";
 
+export interface Socials {
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
+  youtube?: string;
+  tiktok?: string;
+  twitter?: string;
+}
+
 export interface ProspectResult {
   placeId: string;
   companyName: string;
@@ -21,6 +30,10 @@ export interface ProspectResult {
   mapsUrl: string | null;
   imageUrl: string | null;
   email: string | null;
+  extraEmails: string[];
+  socials: Socials;
+  openingHours: string | null;
+  priceLevel: string | null;
   exists?: boolean;
 }
 
@@ -45,7 +58,7 @@ export async function startProspect(input: {
     maxCrawledPlacesPerSearch: Math.min(Math.max(input.maxResults, 1), 120),
     language: "pt-BR",
     skipClosedPlaces: true,
-    scrapeContacts: false,
+    scrapeContacts: true, // enriquece e-mails + redes sociais quando há presença web
   };
 
   const res = await fetch(
@@ -122,14 +135,41 @@ function str(v: unknown): string | null {
 function num(v: unknown): number | null {
   return typeof v === "number" && !Number.isNaN(v) ? v : null;
 }
+function arr(v: unknown): string[] {
+  return Array.isArray(v) ? (v.filter((x) => typeof x === "string") as string[]) : [];
+}
+function first(v: unknown): string | undefined {
+  return arr(v)[0];
+}
 
 function mapItem(it: Record<string, unknown>): ProspectResult | null {
   const companyName = str(it.title) ?? str(it.name);
   const placeId = str(it.placeId) ?? str(it.place_id);
   if (!companyName || !placeId) return null;
 
-  const website = str(it.website) ?? str(it.website);
-  const emails = Array.isArray(it.emails) ? (it.emails as string[]) : [];
+  const website = str(it.website);
+  const emails = arr(it.emails);
+
+  const socials: Socials = {};
+  const ig = first(it.instagrams);
+  const fb = first(it.facebooks);
+  const li = first(it.linkedIns);
+  const yt = first(it.youtubes);
+  const tk = first(it.tiktoks);
+  const tw = first(it.twitters);
+  if (ig) socials.instagram = ig;
+  if (fb) socials.facebook = fb;
+  if (li) socials.linkedin = li;
+  if (yt) socials.youtube = yt;
+  if (tk) socials.tiktok = tk;
+  if (tw) socials.twitter = tw;
+
+  const hours = Array.isArray(it.openingHours)
+    ? (it.openingHours as Record<string, unknown>[])
+        .map((h) => `${str(h.day) ?? ""}: ${str(h.hours) ?? ""}`.trim())
+        .filter((s) => s !== ":")
+        .join(" · ")
+    : str(it.openingHours);
 
   return {
     placeId,
@@ -145,7 +185,11 @@ function mapItem(it: Record<string, unknown>): ProspectResult | null {
     reviews: num(it.reviewsCount) ?? num(it.reviews),
     mapsUrl: str(it.url) ?? str(it.googleMapsUrl),
     imageUrl: str(it.imageUrl),
-    email: emails[0] ? str(emails[0]) : null,
+    email: emails[0] ?? null,
+    extraEmails: emails.slice(1),
+    socials,
+    openingHours: hours || null,
+    priceLevel: str(it.price) ?? str(it.priceLevel),
   };
 }
 
@@ -211,6 +255,10 @@ export async function importProspects(results: ProspectResult[]) {
         google_reviews_count: r.reviews,
         google_maps_url: r.mapsUrl,
         logo_url: r.imageUrl,
+        socials: r.socials,
+        extra_emails: r.extraEmails,
+        opening_hours: r.openingHours,
+        price_level: r.priceLevel,
       };
     });
 

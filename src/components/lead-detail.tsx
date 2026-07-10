@@ -20,6 +20,15 @@ import {
   Users,
   Trash2,
   Palette,
+  MessageCircle,
+  Instagram,
+  Facebook,
+  Linkedin,
+  Youtube,
+  Music2,
+  Twitter,
+  Link2,
+  Clock,
 } from "lucide-react";
 import type { Activity, Lead, PipelineStage } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
@@ -201,6 +210,75 @@ export function LeadDetail({
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="card p-5"
+          >
+            <div className="mb-3 flex items-center gap-2">
+              <Link2 className="h-4 w-4 text-brand" />
+              <h3 className="text-sm font-semibold">Acessar a empresa & redes</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {lead.google_maps_url && (
+                <LinkChip icon={MapPin} label="Google Maps" href={lead.google_maps_url} color="#22c55e" />
+              )}
+              {lead.website && (
+                <LinkChip icon={Globe} label="Site" href={lead.website} color="#0ea5e9" />
+              )}
+              {waLink && (
+                <LinkChip icon={MessageCircle} label="WhatsApp" href={waLink} color="#22c55e" />
+              )}
+              {lead.email && (
+                <LinkChip icon={Mail} label="E-mail" href={`mailto:${lead.email}`} color="#f59e0b" />
+              )}
+              {lead.socials?.instagram && (
+                <LinkChip icon={Instagram} label="Instagram" href={lead.socials.instagram} color="#ec4899" />
+              )}
+              {lead.socials?.facebook && (
+                <LinkChip icon={Facebook} label="Facebook" href={lead.socials.facebook} color="#3b82f6" />
+              )}
+              {lead.socials?.linkedin && (
+                <LinkChip icon={Linkedin} label="LinkedIn" href={lead.socials.linkedin} color="#0ea5e9" />
+              )}
+              {lead.socials?.youtube && (
+                <LinkChip icon={Youtube} label="YouTube" href={lead.socials.youtube} color="#ef4444" />
+              )}
+              {lead.socials?.tiktok && (
+                <LinkChip icon={Music2} label="TikTok" href={lead.socials.tiktok} color="#a855f7" />
+              )}
+              {lead.socials?.twitter && (
+                <LinkChip icon={Twitter} label="X / Twitter" href={lead.socials.twitter} color="#64748b" />
+              )}
+            </div>
+            {!lead.google_maps_url &&
+              !lead.website &&
+              !waLink &&
+              !lead.email &&
+              !lead.socials?.instagram &&
+              !lead.socials?.facebook && (
+                <p className="text-xs text-muted">
+                  Nenhum link encontrado para este lead ainda.
+                </p>
+              )}
+            {(lead.opening_hours || lead.price_level) && (
+              <div className="mt-3 space-y-1 border-t border-border-soft pt-3 text-xs text-muted">
+                {lead.opening_hours && (
+                  <p className="flex items-start gap-1.5">
+                    <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    {lead.opening_hours}
+                  </p>
+                )}
+                {lead.price_level && (
+                  <p>
+                    Faixa de preço: <b className="text-fg">{lead.price_level}</b>
+                  </p>
+                )}
+              </div>
+            )}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="card p-5"
           >
@@ -283,6 +361,31 @@ export function LeadDetail({
         </motion.div>
       </div>
     </div>
+  );
+}
+
+function LinkChip({
+  icon: Icon,
+  label,
+  href,
+  color,
+}: {
+  icon: typeof Phone;
+  label: string;
+  href: string;
+  color: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition hover:brightness-110"
+      style={{ color, background: `${color}14`, borderColor: `${color}33` }}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </a>
   );
 }
 

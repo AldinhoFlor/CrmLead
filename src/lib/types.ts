@@ -69,6 +69,17 @@ export interface Lead {
   google_maps_url: string | null;
   logo_url: string | null;
   brand_colors: string[] | null;
+  socials: {
+    instagram?: string;
+    facebook?: string;
+    linkedin?: string;
+    youtube?: string;
+    tiktok?: string;
+    twitter?: string;
+  } | null;
+  extra_emails: string[] | null;
+  opening_hours: string | null;
+  price_level: string | null;
   notes: string | null;
   tags: string[] | null;
   is_archived: boolean;
