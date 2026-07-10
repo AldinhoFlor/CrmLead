@@ -10,6 +10,7 @@ import {
   Smartphone,
   Settings,
   Radar,
+  Upload,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/prospect", label: "Prospecção", icon: Radar },
+  { href: "/import", label: "Importar CSV", icon: Upload },
   { href: "/kanban", label: "Funil (Kanban)", icon: KanbanSquare },
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/chips", label: "Chips & Aquecedor", icon: Smartphone },
