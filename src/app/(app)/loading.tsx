@@ -1,9 +1,13 @@
+import { PageHeaderSkel, StatCardsSkel, PanelSkel } from "@/components/skeletons";
+
 export default function Loading() {
   return (
-    <div className="flex h-[60vh] items-center justify-center">
-      <div className="flex flex-col items-center gap-3">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-brand" />
-        <p className="text-sm text-muted">Carregando...</p>
+    <div className="space-y-6">
+      <PageHeaderSkel />
+      <StatCardsSkel />
+      <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+        <PanelSkel />
+        <PanelSkel />
       </div>
     </div>
   );
