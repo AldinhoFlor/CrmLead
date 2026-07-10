@@ -7,16 +7,16 @@ import {
   KanbanSquare,
   Users,
   Smartphone,
-  Settings,
+  Radar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/", label: "Home", icon: LayoutDashboard },
+  { href: "/prospect", label: "Prospecção", icon: Radar },
   { href: "/kanban", label: "Funil", icon: KanbanSquare },
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/chips", label: "Chips", icon: Smartphone },
-  { href: "/settings", label: "Config", icon: Settings },
 ];
 
 export function MobileNav() {
