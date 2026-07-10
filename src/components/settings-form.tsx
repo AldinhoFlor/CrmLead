@@ -92,10 +92,10 @@ export function SettingsForm({ settings }: { settings: Partial<AppSettings> }) {
       <div className="card p-5">
         <div className="mb-1 flex items-center gap-2">
           <Plug className="h-4 w-4 text-info" />
-          <h3 className="text-sm font-semibold">Integrações (fase 2)</h3>
+          <h3 className="text-sm font-semibold">Integrações (disparo)</h3>
         </div>
         <p className="mb-4 text-xs text-muted">
-          Endpoints usados na próxima fase para disparo real. Salvos com segurança;
+          Endpoints usados na fase de disparo real. Salvos com segurança;
           nenhuma credencial é exposta no front-end.
         </p>
         <div className="space-y-3">

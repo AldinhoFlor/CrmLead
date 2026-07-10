@@ -106,7 +106,7 @@ export default async function ChipsPage() {
               <li>• Cada “Aquecer” avança 1 dia do ramp e sobe o limite diário gradualmente (+5), até o número virar “ativo”.</li>
               <li>• A saúde sobe com o aquecimento e cai se o número for sinalizado.</li>
               <li>• O randomizador só sorteia chips <b>em rotação</b>, ativos/aquecendo e abaixo do limite diário.</li>
-              <li>• Fase 2: agendador automático + disparos reais via Evolution API/n8n plugam aqui.</li>
+              <li>• Disparo automático via Evolution API/n8n pluga aqui na próxima fase.</li>
             </ul>
           </div>
         </div>

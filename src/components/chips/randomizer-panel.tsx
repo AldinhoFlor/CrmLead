@@ -174,8 +174,7 @@ export function RandomizerPanel({
 
         <p className="mt-3 text-[11px] leading-relaxed text-muted">
           A seleção é atômica no banco (incrementa envios, registra o evento).
-          Na fase 2, a Evolution API / n8n chamam esta mesma função antes de
-          cada disparo.
+          Na fase de disparo, a Evolution API / n8n chamam esta mesma função.
         </p>
       </div>
     </div>

@@ -77,8 +77,7 @@ export function Sidebar() {
       <div className="mt-auto rounded-xl border border-border-soft bg-surface/50 p-3 text-xs text-muted">
         <p className="font-medium text-fg">Fase 1 · CRM</p>
         <p className="mt-1 leading-relaxed">
-          Captação no Google, geração de sites e disparo via Evolution/n8n
-          entram na fase 2.
+          Geração de sites e disparo via Evolution/n8n entram nas próximas fases.
         </p>
       </div>
     </aside>
