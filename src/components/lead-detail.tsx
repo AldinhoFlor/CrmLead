@@ -29,6 +29,9 @@ import {
   Twitter,
   Link2,
   Clock,
+  ExternalLink,
+  Copy,
+  Globe2,
 } from "lucide-react";
 import type { Activity, Lead, PipelineStage } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
@@ -88,6 +91,14 @@ export function LeadDetail({
       toast.success("Lead excluído");
       router.push("/leads");
     });
+  }
+
+  function copyProposal() {
+    const url = `${window.location.origin}/proposta/${lead.id}`;
+    navigator.clipboard.writeText(url).then(
+      () => toast.success("Link do site copiado!"),
+      () => toast.error("Não foi possível copiar o link")
+    );
   }
 
   const waLink = lead.phone
@@ -162,6 +173,42 @@ export function LeadDetail({
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
+        </div>
+      </motion.div>
+
+      {/* Proposal / generated site */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.04 }}
+        className="card flex flex-wrap items-center justify-between gap-3 p-4"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-2 text-white">
+            <Globe2 className="h-4.5 w-4.5" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">Site de proposta</p>
+            <p className="text-xs text-muted">
+              Página de vendas personalizada para enviar ao lead
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={copyProposal}
+            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted transition hover:text-fg"
+          >
+            <Copy className="h-3.5 w-3.5" /> Copiar link
+          </button>
+          <a
+            href={`/proposta/${lead.id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-brand flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold"
+          >
+            <ExternalLink className="h-3.5 w-3.5" /> Abrir site
+          </a>
         </div>
       </motion.div>
 

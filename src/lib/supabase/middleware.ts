@@ -33,7 +33,8 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute =
     path.startsWith("/login") ||
     path.startsWith("/auth") ||
-    path.startsWith("/api"); // API webhooks carry their own token auth
+    path.startsWith("/api") || // API webhooks carry their own token auth
+    path.startsWith("/proposta"); // public generated proposal sites
 
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone();
