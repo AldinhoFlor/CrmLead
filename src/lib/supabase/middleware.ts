@@ -30,7 +30,10 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isAuthRoute = path.startsWith("/login") || path.startsWith("/auth");
+  const isAuthRoute =
+    path.startsWith("/login") ||
+    path.startsWith("/auth") ||
+    path.startsWith("/api"); // API webhooks carry their own token auth
 
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone();
