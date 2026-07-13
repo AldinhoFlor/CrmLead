@@ -98,3 +98,44 @@ export function imagesForSegment(segment: string | null): string[] {
   if (segment) for (const { match, imgs } of SETS) if (match.test(segment)) return imgs.map(P);
   return GENERIC.map(P);
 }
+
+/**
+ * Images to show on the proposal. Prefers the lead's real photos (scraped from
+ * Google Maps); pads with curated segment stock so there are always enough,
+ * and the SmartImg fallback covers any real photo that fails to load.
+ */
+export function resolveImages(lead: {
+  segment: string | null;
+  photos?: string[] | null;
+}): string[] {
+  const real = (lead.photos ?? []).filter(
+    (u): u is string => typeof u === "string" && /^https?:\/\//.test(u)
+  );
+  const stock = imagesForSegment(lead.segment);
+  // Real photos first; always append stock so hero/gallery/about/CTA slots fill.
+  const merged = [...real, ...stock];
+  // De-dupe while keeping order.
+  return Array.from(new Set(merged));
+}
+
+/**
+ * A real logo/avatar for the header: the lead's own logo, else the website's
+ * favicon via Google's public service. Falls back to a letter mark in the UI.
+ */
+export function logoForLead(lead: {
+  logo_url?: string | null;
+  website?: string | null;
+}): string | null {
+  if (lead.logo_url && /^https?:\/\//.test(lead.logo_url)) return lead.logo_url;
+  if (lead.website) {
+    try {
+      const host = new URL(
+        /^https?:\/\//.test(lead.website) ? lead.website : `https://${lead.website}`
+      ).hostname;
+      if (host) return `https://www.google.com/s2/favicons?domain=${host}&sz=128`;
+    } catch {
+      /* ignore malformed website */
+    }
+  }
+  return null;
+}

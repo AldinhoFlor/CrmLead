@@ -32,6 +32,8 @@ import {
   ExternalLink,
   Copy,
   Globe2,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import type { Activity, Lead, PipelineStage } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +49,7 @@ import {
   addActivity,
   deleteLead,
 } from "@/app/actions/leads";
+import { generateProposalCopy } from "@/app/actions/ai-proposal";
 
 const ACTIVITY_META: Record<string, { icon: typeof StickyNote; color: string; label: string }> = {
   nota: { icon: StickyNote, color: "#6366f1", label: "Nota" },
@@ -70,6 +73,7 @@ export function LeadDetail({
 }) {
   const router = useRouter();
   const [, start] = useTransition();
+  const [aiPending, startAi] = useTransition();
   const site = websiteMeta(lead.website_status);
   const prio = priorityMeta(lead.priority);
 
@@ -90,6 +94,17 @@ export function LeadDetail({
       await deleteLead(lead.id);
       toast.success("Lead excluído");
       router.push("/leads");
+    });
+  }
+
+  function genAi() {
+    startAi(async () => {
+      const res = await generateProposalCopy(lead.id);
+      if (res?.error) toast.error(res.error);
+      else {
+        toast.success("Textos personalizados gerados com IA!");
+        router.refresh();
+      }
     });
   }
 
@@ -190,11 +205,26 @@ export function LeadDetail({
           <div>
             <p className="text-sm font-semibold">Site de proposta</p>
             <p className="text-xs text-muted">
-              Página de vendas personalizada para enviar ao lead
+              {lead.ai_content
+                ? "Textos personalizados por IA ✨"
+                : "Página de vendas personalizada para enviar ao lead"}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={genAi}
+            disabled={aiPending}
+            title="Gerar textos únicos com IA para este lead"
+            className="flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand/10 px-3 py-2 text-xs font-semibold text-brand transition hover:bg-brand/20 disabled:opacity-60"
+          >
+            {aiPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5" />
+            )}
+            {lead.ai_content ? "Regerar com IA" : "Gerar textos com IA"}
+          </button>
           <button
             onClick={copyProposal}
             className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted transition hover:text-fg"

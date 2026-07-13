@@ -17,12 +17,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  contentForSegment,
-  DIFFERENTIALS,
-  type PublicLead,
-} from "@/lib/proposal-content";
-import { imagesForSegment } from "@/lib/proposal-images";
+import { resolveContent, type PublicLead } from "@/lib/proposal-content";
+import { resolveImages, logoForLead } from "@/lib/proposal-images";
 
 function waLink(phone: string | null, msg: string) {
   if (!phone) return null;
@@ -59,6 +55,39 @@ function SmartImg({
   );
 }
 
+/** Header brand mark: the lead's real logo, falling back to a letter tile. */
+function LogoMark({
+  src,
+  letter,
+  grad,
+}: {
+  src: string | null;
+  letter: string;
+  grad: string;
+}) {
+  const [ok, setOk] = useState(!!src);
+  if (src && ok) {
+    return (
+      <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white/90 shadow">
+        <img
+          src={src}
+          alt=""
+          className="h-full w-full object-contain"
+          onError={() => setOk(false)}
+        />
+      </span>
+    );
+  }
+  return (
+    <span
+      className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold text-white shadow"
+      style={{ background: grad }}
+    >
+      {letter}
+    </span>
+  );
+}
+
 const reveal: Variants = {
   hidden: { opacity: 0, y: 26 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
@@ -92,8 +121,9 @@ function Reveal({
 }
 
 export function ProposalSite({ lead }: { lead: PublicLead }) {
-  const c = contentForSegment(lead.segment);
-  const imgs = imagesForSegment(lead.segment);
+  const c = resolveContent(lead);
+  const imgs = resolveImages(lead);
+  const logo = logoForLead(lead);
   const colors =
     lead.brand_colors && lead.brand_colors.length >= 2
       ? lead.brand_colors
@@ -130,12 +160,7 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
       <header className="fixed top-0 z-40 w-full border-b border-white/10 bg-black/20 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
           <div className="flex items-center gap-3">
-            <span
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold text-white shadow"
-              style={{ background: grad }}
-            >
-              {lead.company_name.charAt(0)}
-            </span>
+            <LogoMark src={logo} letter={lead.company_name.charAt(0)} grad={grad} />
             <span className="font-semibold tracking-tight text-white drop-shadow">
               {lead.company_name}
             </span>
@@ -177,7 +202,7 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
               variants={reveal}
               className="text-4xl font-bold leading-[1.05] tracking-tight text-white drop-shadow-lg md:text-6xl"
             >
-              {c.headline(lead.company_name, lead.city)}
+              {c.headline}
             </motion.h1>
             <motion.p variants={reveal} className="mt-6 max-w-2xl text-lg text-white/90 md:text-xl">
               {c.subheadline}
@@ -332,14 +357,11 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
               Por que nos escolher
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-              Experiência que gera confiança
+              {c.aboutTitle}
             </h2>
-            <p className="mt-3 text-slate-500">
-              Cada detalhe pensado para você ter a melhor experiência, do primeiro
-              contato ao resultado final.
-            </p>
+            <p className="mt-3 text-slate-500">{c.aboutText}</p>
             <div className="mt-7 space-y-4">
-              {DIFFERENTIALS.map((d, i) => (
+              {c.differentials.map((d, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span
                     className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white"
@@ -385,8 +407,7 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
                 <div>
                   <Quote className="h-9 w-9 text-white/60" />
                   <p className="mt-3 text-xl font-medium leading-relaxed md:text-2xl">
-                    Quem conhece a {lead.company_name} confia e recomenda. Venha viver
-                    essa experiência você também.
+                    {c.socialProof}
                   </p>
                   {lead.google_maps_url && (
                     <a

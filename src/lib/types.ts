@@ -68,6 +68,8 @@ export interface Lead {
   google_reviews_count: number | null;
   google_maps_url: string | null;
   logo_url: string | null;
+  photos: string[] | null;
+  ai_content: Record<string, unknown> | null;
   brand_colors: string[] | null;
   socials: {
     instagram?: string;

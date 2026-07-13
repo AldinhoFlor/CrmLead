@@ -29,6 +29,7 @@ export interface ProspectResult {
   reviews: number | null;
   mapsUrl: string | null;
   imageUrl: string | null;
+  imageUrls: string[];
   email: string | null;
   extraEmails: string[];
   socials: Socials;
@@ -59,6 +60,7 @@ export async function startProspect(input: {
     language: "pt-BR",
     skipClosedPlaces: true,
     scrapeContacts: true, // enriquece e-mails + redes sociais quando há presença web
+    maxImages: 8, // fotos reais do local para o site de proposta
   };
 
   const res = await fetch(
@@ -150,6 +152,19 @@ function mapItem(it: Record<string, unknown>): ProspectResult | null {
   const website = str(it.website);
   const emails = arr(it.emails);
 
+  // Real photos of the place (Apify returns imageUrls when maxImages > 0).
+  const imageUrl = str(it.imageUrl);
+  const rawImages = Array.isArray(it.imageUrls)
+    ? (it.imageUrls as unknown[])
+        .map((im) =>
+          typeof im === "string" ? im : str((im as Record<string, unknown>)?.imageUrl)
+        )
+        .filter((u): u is string => !!u)
+    : [];
+  const imageUrls = Array.from(
+    new Set([imageUrl, ...rawImages].filter((u): u is string => !!u))
+  ).slice(0, 8);
+
   const socials: Socials = {};
   const ig = first(it.instagrams);
   const fb = first(it.facebooks);
@@ -184,7 +199,8 @@ function mapItem(it: Record<string, unknown>): ProspectResult | null {
     rating: num(it.totalScore) ?? num(it.rating),
     reviews: num(it.reviewsCount) ?? num(it.reviews),
     mapsUrl: str(it.url) ?? str(it.googleMapsUrl),
-    imageUrl: str(it.imageUrl),
+    imageUrl,
+    imageUrls,
     email: emails[0] ?? null,
     extraEmails: emails.slice(1),
     socials,
@@ -255,6 +271,7 @@ export async function importProspects(results: ProspectResult[]) {
         google_reviews_count: r.reviews,
         google_maps_url: r.mapsUrl,
         logo_url: r.imageUrl,
+        photos: r.imageUrls,
         socials: r.socials,
         extra_emails: r.extraEmails,
         opening_hours: r.openingHours,

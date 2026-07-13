@@ -21,6 +21,18 @@ import {
   Building2,
 } from "lucide-react";
 
+export interface AiContent {
+  kicker?: string;
+  headline?: string;
+  subheadline?: string;
+  services?: { title: string; desc: string }[];
+  differentials?: { title: string; desc: string }[];
+  about_title?: string;
+  about_text?: string;
+  social_proof?: string;
+  cta_text?: string;
+}
+
 export interface PublicLead {
   id: string;
   company_name: string;
@@ -40,6 +52,21 @@ export interface PublicLead {
   logo_url: string | null;
   opening_hours: string | null;
   price_level: string | null;
+  photos: string[] | null;
+  ai_content: AiContent | null;
+}
+
+/** Content ready to render: AI copy layered over the segment template, icons attached. */
+export interface ResolvedContent {
+  kicker: string;
+  headline: string;
+  subheadline: string;
+  services: Item[];
+  differentials: Item[];
+  aboutTitle: string;
+  aboutText: string;
+  socialProof: string;
+  ctaText: string;
 }
 
 export interface Item {
@@ -214,6 +241,54 @@ export function contentForSegment(segment: string | null): SegmentContent {
     for (const { match, content } of CONTENT) if (match.test(segment)) return content;
   }
   return GENERIC;
+}
+
+const DIFF_ICONS: LucideIcon[] = [Award, Users, CalendarCheck, ShieldCheck];
+
+/**
+ * Build the render-ready content for a lead. When `ai_content` is present
+ * (generated per-lead by Claude) its copy overrides the segment template;
+ * otherwise the keyword-matched template is used. Icons always come from the
+ * template so the layout stays consistent.
+ */
+export function resolveContent(lead: PublicLead): ResolvedContent {
+  const base = contentForSegment(lead.segment);
+  const ai = lead.ai_content ?? {};
+  const name = lead.company_name;
+
+  const services: Item[] =
+    ai.services && ai.services.length
+      ? ai.services.slice(0, 6).map((s, i) => ({
+          icon: base.services[i % base.services.length].icon,
+          title: s.title,
+          desc: s.desc,
+        }))
+      : base.services;
+
+  const differentials: Item[] =
+    ai.differentials && ai.differentials.length
+      ? ai.differentials.slice(0, 4).map((d, i) => ({
+          icon: DIFF_ICONS[i % DIFF_ICONS.length],
+          title: d.title,
+          desc: d.desc,
+        }))
+      : DIFFERENTIALS;
+
+  return {
+    kicker: ai.kicker?.trim() || base.kicker,
+    headline: ai.headline?.trim() || base.headline(name, lead.city),
+    subheadline: ai.subheadline?.trim() || base.subheadline,
+    services,
+    differentials,
+    aboutTitle: ai.about_title?.trim() || "Experiência que gera confiança",
+    aboutText:
+      ai.about_text?.trim() ||
+      "Cada detalhe pensado para você ter a melhor experiência, do primeiro contato ao resultado final.",
+    socialProof:
+      ai.social_proof?.trim() ||
+      `Quem conhece a ${name} confia e recomenda. Venha viver essa experiência você também.`,
+    ctaText: ai.cta_text?.trim() || base.ctaText,
+  };
 }
 
 export { Star, MapPin, Clock };
