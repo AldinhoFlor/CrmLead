@@ -34,6 +34,7 @@ import {
   Globe2,
   Sparkles,
   Loader2,
+  X,
 } from "lucide-react";
 import type { Activity, Lead, PipelineStage } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
@@ -49,7 +50,11 @@ import {
   addActivity,
   deleteLead,
 } from "@/app/actions/leads";
-import { generateProposalCopy } from "@/app/actions/ai-proposal";
+import {
+  generateProposalCopy,
+  generateProposalEmail,
+  type ProposalEmail,
+} from "@/app/actions/ai-proposal";
 
 const ACTIVITY_META: Record<string, { icon: typeof StickyNote; color: string; label: string }> = {
   nota: { icon: StickyNote, color: "#6366f1", label: "Nota" },
@@ -74,6 +79,8 @@ export function LeadDetail({
   const router = useRouter();
   const [, start] = useTransition();
   const [aiPending, startAi] = useTransition();
+  const [emailPending, startEmail] = useTransition();
+  const [email, setEmail] = useState<ProposalEmail | null>(null);
   const site = websiteMeta(lead.website_status);
   const prio = priorityMeta(lead.priority);
 
@@ -106,6 +113,25 @@ export function LeadDetail({
         router.refresh();
       }
     });
+  }
+
+  function genEmail() {
+    const url = `${window.location.origin}/proposta/${lead.id}`;
+    startEmail(async () => {
+      const res = await generateProposalEmail(lead.id, url);
+      if (res?.error) toast.error(res.error);
+      else if (res?.ok) {
+        setEmail(res.email);
+        toast.success("E-mail de proposta gerado!");
+      }
+    });
+  }
+
+  function copyText(text: string, label: string) {
+    navigator.clipboard.writeText(text).then(
+      () => toast.success(`${label} copiado!`),
+      () => toast.error("Não foi possível copiar")
+    );
   }
 
   function copyProposal() {
@@ -226,6 +252,19 @@ export function LeadDetail({
             {lead.ai_content ? "Regerar com IA" : "Gerar textos com IA"}
           </button>
           <button
+            onClick={genEmail}
+            disabled={emailPending}
+            title="Gerar o e-mail de proposta para enviar ao dono do negócio"
+            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted transition hover:text-fg disabled:opacity-60"
+          >
+            {emailPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Mail className="h-3.5 w-3.5" />
+            )}
+            Gerar e-mail
+          </button>
+          <button
             onClick={copyProposal}
             className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted transition hover:text-fg"
           >
@@ -241,6 +280,73 @@ export function LeadDetail({
           </a>
         </div>
       </motion.div>
+
+      {/* Generated proposal e-mail */}
+      {email && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card p-5"
+        >
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-brand" />
+              <h3 className="text-sm font-semibold">E-mail de proposta</h3>
+            </div>
+            <button
+              onClick={() => setEmail(null)}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted transition hover:text-fg"
+              aria-label="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-muted">
+                  Assunto
+                </span>
+                <button
+                  onClick={() => copyText(email.subject, "Assunto")}
+                  className="flex items-center gap-1 text-[11px] text-muted transition hover:text-fg"
+                >
+                  <Copy className="h-3 w-3" /> Copiar
+                </button>
+              </div>
+              <input
+                readOnly
+                value={email.subject}
+                className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none"
+              />
+            </div>
+            <div>
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-muted">
+                  Mensagem
+                </span>
+                <button
+                  onClick={() => copyText(email.body, "E-mail")}
+                  className="flex items-center gap-1 text-[11px] text-muted transition hover:text-fg"
+                >
+                  <Copy className="h-3 w-3" /> Copiar
+                </button>
+              </div>
+              <textarea
+                readOnly
+                value={email.body}
+                rows={10}
+                className="w-full resize-y rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm leading-relaxed outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-muted">
+              Revise, ajuste o que quiser e cole no seu e-mail. Anexar um print
+              do topo da nova página aumenta o clique.
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
         {/* Left: details */}

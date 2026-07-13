@@ -399,6 +399,73 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
         </div>
       </section>
 
+      {/* Offers / how to start (only when the AI generated them for this lead) */}
+      {c.offers.length > 0 && (
+        <section className="mx-auto max-w-6xl px-5 pb-6 md:pb-10">
+          <Reveal className="mb-12 text-center">
+            <Eyebrow color={primary}>Como começar</Eyebrow>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-slate-900 md:text-[2.6rem]">
+              Escolha o melhor caminho pra você
+            </h2>
+          </Reveal>
+          <motion.div
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-70px" }}
+            className="grid gap-5 md:grid-cols-3"
+          >
+            {c.offers.map((o, i) => (
+              <motion.div
+                key={i}
+                variants={reveal}
+                className={cn(
+                  "relative flex flex-col rounded-3xl border p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl",
+                  o.highlight ? "border-transparent text-white shadow-xl" : "border-slate-200 bg-white"
+                )}
+                style={o.highlight ? { background: grad } : undefined}
+              >
+                {o.highlight && (
+                  <span className="mb-3 inline-flex w-fit rounded-full bg-white/20 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-[0.2em]">
+                    Recomendado
+                  </span>
+                )}
+                <h3
+                  className={cn(
+                    "font-display text-xl font-semibold",
+                    o.highlight ? "text-white" : "text-slate-900"
+                  )}
+                >
+                  {o.title}
+                </h3>
+                <p
+                  className={cn(
+                    "mt-2 flex-1 text-sm leading-relaxed",
+                    o.highlight ? "text-white/90" : "text-slate-500"
+                  )}
+                >
+                  {o.desc}
+                </p>
+                {cta && (
+                  <a
+                    href={cta.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={cn(
+                      "mt-6 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition hover:scale-[1.02]",
+                      o.highlight ? "bg-white" : "text-white"
+                    )}
+                    style={o.highlight ? { color: primary } : { background: grad }}
+                  >
+                    <cta.icon className="h-4 w-4" /> {c.ctaText}
+                  </a>
+                )}
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+      )}
+
       {/* Social proof */}
       {rating != null && (
         <section className="py-8">

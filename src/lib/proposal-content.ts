@@ -21,12 +21,19 @@ import {
   Building2,
 } from "lucide-react";
 
+export interface AiOffer {
+  title: string;
+  desc: string;
+  highlight?: boolean;
+}
+
 export interface AiContent {
   kicker?: string;
   headline?: string;
   subheadline?: string;
   services?: { title: string; desc: string }[];
   differentials?: { title: string; desc: string }[];
+  offers?: AiOffer[];
   about_title?: string;
   about_text?: string;
   social_proof?: string;
@@ -63,6 +70,7 @@ export interface ResolvedContent {
   subheadline: string;
   services: Item[];
   differentials: Item[];
+  offers: AiOffer[];
   aboutTitle: string;
   aboutText: string;
   socialProof: string;
@@ -274,12 +282,19 @@ export function resolveContent(lead: PublicLead): ResolvedContent {
         }))
       : DIFFERENTIALS;
 
+  // Offers only appear when the AI generated them for this specific lead —
+  // never a generic template block that could misfire for the segment.
+  const offers: AiOffer[] = (ai.offers ?? [])
+    .filter((o) => o && o.title?.trim() && o.desc?.trim())
+    .slice(0, 3);
+
   return {
     kicker: ai.kicker?.trim() || base.kicker,
     headline: ai.headline?.trim() || base.headline(name, lead.city),
     subheadline: ai.subheadline?.trim() || base.subheadline,
     services,
     differentials,
+    offers,
     aboutTitle: ai.about_title?.trim() || "Experiência que gera confiança",
     aboutText:
       ai.about_text?.trim() ||
