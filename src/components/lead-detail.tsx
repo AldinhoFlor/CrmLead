@@ -35,20 +35,25 @@ import {
   Sparkles,
   Loader2,
   X,
+  Archive,
 } from "lucide-react";
 import type { Activity, Lead, PipelineStage } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import {
+  cn,
   formatCurrency,
   formatDate,
   priorityMeta,
   websiteMeta,
   timeAgo,
+  proposalStatus,
 } from "@/lib/utils";
 import {
   updateLead,
   addActivity,
   deleteLead,
+  setProposalSent,
+  archiveLead,
 } from "@/app/actions/leads";
 import {
   generateProposalCopy,
@@ -71,10 +76,14 @@ export function LeadDetail({
   lead,
   stages,
   activities,
+  followupDays = 5,
+  discardDays = 14,
 }: {
   lead: Lead;
   stages: PipelineStage[];
   activities: Activity[];
+  followupDays?: number;
+  discardDays?: number;
 }) {
   const router = useRouter();
   const [, start] = useTransition();
@@ -112,6 +121,30 @@ export function LeadDetail({
         toast.success("Textos personalizados gerados com IA!");
         router.refresh();
       }
+    });
+  }
+
+  const prop = proposalStatus(lead, followupDays, discardDays);
+  const sent = !!lead.proposal_sent_at;
+
+  function toggleSent() {
+    start(async () => {
+      const res = await setProposalSent(lead.id, !sent);
+      if (res?.error) toast.error(res.error);
+      else {
+        toast.success(sent ? "Marcada como não enviada" : "Proposta marcada como enviada");
+        router.refresh();
+      }
+    });
+  }
+
+  function discard() {
+    if (!confirm(`Descartar (arquivar) o lead "${lead.company_name}"? Ele sai do funil.`))
+      return;
+    start(async () => {
+      await archiveLead(lead.id);
+      toast.success("Lead descartado (arquivado)");
+      router.push("/leads");
     });
   }
 
@@ -222,8 +255,9 @@ export function LeadDetail({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.04 }}
-        className="card flex flex-wrap items-center justify-between gap-3 p-4"
+        className="card flex flex-col gap-3 p-4"
       >
+        <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-2 text-white">
             <Globe2 className="h-4.5 w-4.5" />
@@ -278,6 +312,58 @@ export function LeadDetail({
           >
             <ExternalLink className="h-3.5 w-3.5" /> Abrir site
           </a>
+        </div>
+        </div>
+
+        {/* Proposal tracking: sent state + follow-up timing */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border-soft pt-3">
+          <div className="flex items-center gap-2">
+            {prop.state !== "none" && (
+              <span
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold"
+                style={{ color: prop.color, background: `${prop.color}1f` }}
+              >
+                {prop.state === "ready" ? (
+                  <Sparkles className="h-3.5 w-3.5" />
+                ) : (
+                  <Send className="h-3.5 w-3.5" />
+                )}
+                {prop.label}
+              </span>
+            )}
+            {sent && lead.proposal_sent_at && (
+              <span className="text-xs text-muted">
+                em {formatDate(lead.proposal_sent_at)}
+              </span>
+            )}
+            {prop.state === "followup" && (
+              <span className="text-xs text-warning">— hora de cobrar</span>
+            )}
+            {prop.state === "discard" && (
+              <span className="text-xs text-danger">— sem resposta, considere descartar</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleSent}
+              className={cn(
+                "flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition",
+                sent
+                  ? "border-border text-muted hover:text-fg"
+                  : "border-success/40 bg-success/10 text-success hover:bg-success/20"
+              )}
+            >
+              <Send className="h-3.5 w-3.5" />
+              {sent ? "Desmarcar envio" : "Marcar proposta enviada"}
+            </button>
+            <button
+              onClick={discard}
+              title="Arquivar o lead (sai do funil)"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted transition hover:border-danger/40 hover:text-danger"
+            >
+              <Archive className="h-3.5 w-3.5" /> Descartar
+            </button>
+          </div>
         </div>
       </motion.div>
 

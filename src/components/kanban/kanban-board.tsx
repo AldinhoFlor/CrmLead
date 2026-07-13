@@ -37,9 +37,13 @@ function buildColumns(stages: PipelineStage[], leads: Lead[]): ColumnsMap {
 export function KanbanBoard({
   stages,
   leads,
+  followupDays,
+  discardDays,
 }: {
   stages: PipelineStage[];
   leads: Lead[];
+  followupDays: number;
+  discardDays: number;
 }) {
   const [columns, setColumns] = useState<ColumnsMap>(() =>
     buildColumns(stages, leads)
@@ -133,6 +137,8 @@ export function KanbanBoard({
             stage={stage}
             leads={columns[stage.id] ?? []}
             stages={stages}
+            followupDays={followupDays}
+            discardDays={discardDays}
           />
         ))}
       </div>
@@ -140,7 +146,12 @@ export function KanbanBoard({
       <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.22,1,0.36,1)" }}>
         {activeLead ? (
           <div className="w-72">
-            <KanbanCard lead={activeLead} overlay />
+            <KanbanCard
+              lead={activeLead}
+              overlay
+              followupDays={followupDays}
+              discardDays={discardDays}
+            />
           </div>
         ) : null}
       </DragOverlay>

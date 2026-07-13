@@ -8,20 +8,24 @@ export const dynamic = "force-dynamic";
 export default async function KanbanPage() {
   const supabase = await createClient();
 
-  const [{ data: stages }, { data: leads }] = await Promise.all([
-    supabase
-      .from("pipeline_stages")
-      .select("*")
-      .order("position", { ascending: true }),
-    supabase
-      .from("leads")
-      .select("*")
-      .eq("is_archived", false)
-      .order("position", { ascending: true }),
-  ]);
+  const [{ data: stages }, { data: leads }, { data: settings }] =
+    await Promise.all([
+      supabase
+        .from("pipeline_stages")
+        .select("*")
+        .order("position", { ascending: true }),
+      supabase
+        .from("leads")
+        .select("*")
+        .eq("is_archived", false)
+        .order("position", { ascending: true }),
+      supabase.from("app_settings").select("followup_days, discard_days").single(),
+    ]);
 
   const stageList = (stages ?? []) as PipelineStage[];
   const leadList = (leads ?? []) as Lead[];
+  const followupDays = settings?.followup_days ?? 5;
+  const discardDays = settings?.discard_days ?? 14;
 
   return (
     <div className="space-y-6">
@@ -35,7 +39,12 @@ export default async function KanbanPage() {
         <NewLeadButton stages={stageList} />
       </div>
 
-      <KanbanBoard stages={stageList} leads={leadList} />
+      <KanbanBoard
+        stages={stageList}
+        leads={leadList}
+        followupDays={followupDays}
+        discardDays={discardDays}
+      />
     </div>
   );
 }

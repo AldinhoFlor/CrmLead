@@ -21,20 +21,24 @@ export default async function LeadPage({
 
   if (!lead) notFound();
 
-  const [{ data: stages }, { data: activities }] = await Promise.all([
-    supabase.from("pipeline_stages").select("*").order("position"),
-    supabase
-      .from("activities")
-      .select("*")
-      .eq("lead_id", id)
-      .order("created_at", { ascending: false }),
-  ]);
+  const [{ data: stages }, { data: activities }, { data: settings }] =
+    await Promise.all([
+      supabase.from("pipeline_stages").select("*").order("position"),
+      supabase
+        .from("activities")
+        .select("*")
+        .eq("lead_id", id)
+        .order("created_at", { ascending: false }),
+      supabase.from("app_settings").select("followup_days, discard_days").single(),
+    ]);
 
   return (
     <LeadDetail
       lead={lead as Lead}
       stages={(stages ?? []) as PipelineStage[]}
       activities={(activities ?? []) as Activity[]}
+      followupDays={settings?.followup_days ?? 5}
+      discardDays={settings?.discard_days ?? 14}
     />
   );
 }

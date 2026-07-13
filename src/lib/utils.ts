@@ -64,6 +64,47 @@ export function websiteMeta(w: string | null | undefined) {
   return WEBSITE_META[w ?? "sem_site"] ?? WEBSITE_META.sem_site;
 }
 
+export type ProposalState = "none" | "ready" | "sent" | "followup" | "discard";
+
+export interface ProposalStatus {
+  state: ProposalState;
+  label: string;
+  color: string;
+  days: number | null;
+}
+
+/**
+ * Where a lead sits in the proposal lifecycle, for the kanban badge and the
+ * lead detail. `ready` = AI copy generated (safe to send). Once sent, the
+ * elapsed days are compared to the configurable follow-up / discard thresholds.
+ */
+export function proposalStatus(
+  lead: { ai_content?: unknown; proposal_sent_at?: string | null },
+  followupDays = 5,
+  discardDays = 14
+): ProposalStatus {
+  const sentAt = lead.proposal_sent_at ? new Date(lead.proposal_sent_at) : null;
+  if (sentAt && !Number.isNaN(sentAt.getTime())) {
+    const days = Math.max(
+      0,
+      Math.floor((Date.now() - sentAt.getTime()) / 86_400_000)
+    );
+    if (days >= discardDays)
+      return { state: "discard", label: `Descartar? · ${days}d`, color: "#ef4444", days };
+    if (days >= followupDays)
+      return { state: "followup", label: `Cobrar · ${days}d`, color: "#f59e0b", days };
+    return {
+      state: "sent",
+      label: days === 0 ? "Enviada hoje" : `Enviada há ${days}d`,
+      color: "#22c55e",
+      days,
+    };
+  }
+  if (lead.ai_content)
+    return { state: "ready", label: "Proposta pronta", color: "#8b5cf6", days: null };
+  return { state: "none", label: "", color: "", days: null };
+}
+
 const CHIP_STATUS_META: Record<string, { label: string; color: string }> = {
   novo: { label: "Novo", color: "#64748b" },
   aquecendo: { label: "Aquecendo", color: "#f59e0b" },

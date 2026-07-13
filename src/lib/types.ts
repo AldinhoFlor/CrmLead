@@ -70,6 +70,7 @@ export interface Lead {
   logo_url: string | null;
   photos: string[] | null;
   ai_content: Record<string, unknown> | null;
+  proposal_sent_at: string | null;
   brand_colors: string[] | null;
   socials: {
     instagram?: string;
@@ -139,6 +140,8 @@ export interface AppSettings {
   rotation_strategy: string;
   evolution_base_url: string | null;
   n8n_webhook_url: string | null;
+  followup_days: number;
+  discard_days: number;
   data: Record<string, unknown>;
   updated_at: string;
 }

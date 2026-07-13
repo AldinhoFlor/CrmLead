@@ -109,6 +109,39 @@ export async function deleteLead(id: string) {
   return { ok: true };
 }
 
+export async function setProposalSent(id: string, sent: boolean) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autenticado" };
+
+  const when = sent ? new Date().toISOString() : null;
+  const { error } = await supabase
+    .from("leads")
+    .update({ proposal_sent_at: when })
+    .eq("id", id);
+  if (error) return { error: error.message };
+
+  if (sent) {
+    await supabase.from("activities").insert({
+      owner_id: user.id,
+      lead_id: id,
+      type: "proposta_enviada",
+      content: "Proposta enviada ao cliente",
+    });
+    await supabase
+      .from("leads")
+      .update({ last_contacted_at: when })
+      .eq("id", id);
+  }
+
+  revalidatePath("/kanban");
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${id}`);
+  return { ok: true };
+}
+
 export async function addActivity(
   lead_id: string,
   type: string,

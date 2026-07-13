@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Save, Plug, Flame, Shuffle } from "lucide-react";
+import { Loader2, Save, Plug, Flame, Shuffle, Send } from "lucide-react";
 import type { AppSettings } from "@/lib/types";
 import { updateSettings } from "@/app/actions/chips";
 
@@ -18,6 +18,8 @@ export function SettingsForm({ settings }: { settings: Partial<AppSettings> }) {
     warmup_min_per_day: settings.warmup_min_per_day ?? 5,
     warmup_max_per_day: settings.warmup_max_per_day ?? 60,
     rotation_strategy: settings.rotation_strategy ?? "ponderada",
+    followup_days: settings.followup_days ?? 5,
+    discard_days: settings.discard_days ?? 14,
     evolution_base_url: settings.evolution_base_url ?? "",
     n8n_webhook_url: settings.n8n_webhook_url ?? "",
   });
@@ -32,6 +34,8 @@ export function SettingsForm({ settings }: { settings: Partial<AppSettings> }) {
         warmup_min_per_day: Number(form.warmup_min_per_day),
         warmup_max_per_day: Number(form.warmup_max_per_day),
         rotation_strategy: form.rotation_strategy,
+        followup_days: Number(form.followup_days),
+        discard_days: Number(form.discard_days),
         evolution_base_url: form.evolution_base_url || null,
         n8n_webhook_url: form.n8n_webhook_url || null,
       });
@@ -87,6 +91,39 @@ export function SettingsForm({ settings }: { settings: Partial<AppSettings> }) {
           <option value="round_robin">Round-robin (menos usado recentemente)</option>
           <option value="menos_usado">Menos usado no dia</option>
         </select>
+      </div>
+
+      <div className="card p-5">
+        <div className="mb-1 flex items-center gap-2">
+          <Send className="h-4 w-4 text-success" />
+          <h3 className="text-sm font-semibold">Acompanhamento de propostas</h3>
+        </div>
+        <p className="mb-4 text-xs text-muted">
+          Depois que você marca uma proposta como enviada, o funil mostra há
+          quantos dias ela está sem resposta — e avisa quando cobrar ou descartar.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelCls}>Dias até &quot;cobrar&quot; (follow-up)</label>
+            <input
+              type="number"
+              min={1}
+              value={form.followup_days}
+              onChange={(e) => set("followup_days", Number(e.target.value))}
+              className={field}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Dias até sugerir descarte</label>
+            <input
+              type="number"
+              min={1}
+              value={form.discard_days}
+              onChange={(e) => set("discard_days", Number(e.target.value))}
+              className={field}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="card p-5">

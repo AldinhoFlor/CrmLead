@@ -12,10 +12,14 @@ export function KanbanColumn({
   stage,
   leads,
   stages,
+  followupDays,
+  discardDays,
 }: {
   stage: PipelineStage;
   leads: Lead[];
   stages: PipelineStage[];
+  followupDays: number;
+  discardDays: number;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
@@ -57,7 +61,12 @@ export function KanbanColumn({
           strategy={verticalListSortingStrategy}
         >
           {leads.map((lead) => (
-            <KanbanCard key={lead.id} lead={lead} />
+            <KanbanCard
+              key={lead.id}
+              lead={lead}
+              followupDays={followupDays}
+              discardDays={discardDays}
+            />
           ))}
         </SortableContext>
 

@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRouter } from "next/navigation";
-import { Star, Globe, Phone, GripVertical } from "lucide-react";
+import { Star, Globe, Phone, GripVertical, Sparkles, Send } from "lucide-react";
 import type { Lead } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,9 +11,20 @@ import {
   formatCurrency,
   priorityMeta,
   websiteMeta,
+  proposalStatus,
 } from "@/lib/utils";
 
-export function KanbanCard({ lead, overlay }: { lead: Lead; overlay?: boolean }) {
+export function KanbanCard({
+  lead,
+  overlay,
+  followupDays = 5,
+  discardDays = 14,
+}: {
+  lead: Lead;
+  overlay?: boolean;
+  followupDays?: number;
+  discardDays?: number;
+}) {
   const router = useRouter();
   const {
     attributes,
@@ -31,6 +42,7 @@ export function KanbanCard({ lead, overlay }: { lead: Lead; overlay?: boolean })
 
   const prio = priorityMeta(lead.priority);
   const site = websiteMeta(lead.website_status);
+  const prop = proposalStatus(lead, followupDays, discardDays);
 
   return (
     <div
@@ -64,6 +76,27 @@ export function KanbanCard({ lead, overlay }: { lead: Lead; overlay?: boolean })
         <Badge label={site.label} color={site.color} />
         <Badge label={prio.label} color={prio.color} />
       </div>
+
+      {prop.state !== "none" && (
+        <div className="mb-2.5">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
+              prop.state === "followup" || prop.state === "discard"
+                ? "animate-pulse"
+                : ""
+            )}
+            style={{ color: prop.color, background: `${prop.color}1f` }}
+          >
+            {prop.state === "ready" ? (
+              <Sparkles className="h-3 w-3" />
+            ) : (
+              <Send className="h-3 w-3" />
+            )}
+            {prop.label}
+          </span>
+        </div>
+      )}
 
       <div className="flex items-center justify-between text-xs text-muted">
         <span className="font-semibold text-fg">
