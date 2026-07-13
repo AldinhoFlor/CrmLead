@@ -11,9 +11,9 @@ import {
   Settings,
   Radar,
   Upload,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "@/components/logo";
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -31,9 +31,7 @@ export function Sidebar() {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border-soft bg-bg-soft/60 p-4 backdrop-blur-xl md:flex">
       <Link href="/" className="mb-8 flex items-center gap-3 px-2 pt-2">
-        <div className="btn-brand flex h-9 w-9 items-center justify-center rounded-xl">
-          <Zap className="h-5 w-5" strokeWidth={2.5} />
-        </div>
+        <LogoMark className="h-9 w-9" />
         <span className="text-lg font-bold tracking-tight">
           Lead<span className="gradient-text">Forge</span>
         </span>

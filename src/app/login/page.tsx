@@ -2,8 +2,9 @@
 
 import { useActionState } from "react";
 import { motion } from "framer-motion";
-import { Zap, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { login } from "./actions";
+import { LogoMark } from "@/components/logo";
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(login, null as null | { error: string });
@@ -21,9 +22,9 @@ export default function LoginPage() {
             initial={{ rotate: -12, scale: 0.8 }}
             animate={{ rotate: 0, scale: 1 }}
             transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-            className="btn-brand mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+            className="mb-4"
           >
-            <Zap className="h-7 w-7" strokeWidth={2.5} />
+            <LogoMark className="h-14 w-14" />
           </motion.div>
           <h1 className="text-2xl font-bold tracking-tight">
             Lead<span className="gradient-text">Forge</span> CRM
