@@ -88,6 +88,30 @@ function LogoMark({
   );
 }
 
+/** Signature motif: a short brand rule + mono uppercase label heading each section. */
+function Eyebrow({
+  children,
+  color,
+  className,
+}: {
+  children: React.ReactNode;
+  color: string;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-3 font-mono text-[0.7rem] font-medium uppercase tracking-[0.28em]",
+        className
+      )}
+      style={{ color }}
+    >
+      <span className="h-px w-8" style={{ background: color }} />
+      {children}
+    </span>
+  );
+}
+
 const reveal: Variants = {
   hidden: { opacity: 0, y: 26 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
@@ -193,18 +217,19 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
           <motion.div variants={container} initial="hidden" animate="show" className="max-w-3xl">
             <motion.p
               variants={reveal}
-              className="mb-4 inline-block rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur"
+              className="mb-5 flex items-center gap-3 font-mono text-[0.7rem] uppercase tracking-[0.28em] text-white/85"
             >
+              <span className="h-px w-10 bg-white/50" />
               {c.kicker}
               {cityLabel ? ` · ${cityLabel}` : ""}
             </motion.p>
             <motion.h1
               variants={reveal}
-              className="text-4xl font-bold leading-[1.05] tracking-tight text-white drop-shadow-lg md:text-6xl"
+              className="font-display text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.01em] text-white drop-shadow-lg md:text-7xl"
             >
               {c.headline}
             </motion.h1>
-            <motion.p variants={reveal} className="mt-6 max-w-2xl text-lg text-white/90 md:text-xl">
+            <motion.p variants={reveal} className="mt-7 max-w-2xl text-lg leading-relaxed text-white/90 md:text-xl">
               {c.subheadline}
             </motion.p>
             <motion.div variants={reveal} className="mt-9 flex flex-wrap items-center gap-3">
@@ -276,11 +301,9 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
       {/* Services */}
       <section id="servicos" className="mx-auto max-w-6xl px-5 py-20 md:py-28">
         <Reveal className="mb-12 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: primary }}>
-            Nossos serviços
-          </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-            Tudo o que você precisa
+          <Eyebrow color={primary}>Serviços</Eyebrow>
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-slate-900 md:text-[2.6rem]">
+            Tudo o que você precisa, em um só lugar
           </h2>
         </Reveal>
         <motion.div
@@ -313,10 +336,8 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
       <section className="bg-slate-50 py-20 md:py-28">
         <div className="mx-auto max-w-6xl px-5">
           <Reveal className="mb-12 text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: primary }}>
-              Galeria
-            </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <Eyebrow color={primary}>Bastidores</Eyebrow>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-slate-900 md:text-[2.6rem]">
               Um pouco do nosso mundo
             </h2>
           </Reveal>
@@ -353,13 +374,11 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
             />
           </Reveal>
           <Reveal delay={0.1}>
-            <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: primary }}>
-              Por que nos escolher
-            </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <Eyebrow color={primary}>Por que nos escolher</Eyebrow>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-slate-900 md:text-[2.6rem]">
               {c.aboutTitle}
             </h2>
-            <p className="mt-3 text-slate-500">{c.aboutText}</p>
+            <p className="mt-4 text-lg leading-relaxed text-slate-500">{c.aboutText}</p>
             <div className="mt-7 space-y-4">
               {c.differentials.map((d, i) => (
                 <div key={i} className="flex items-start gap-3">
@@ -390,7 +409,7 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
                 style={{ background: grad }}
               >
                 <div className="text-center md:border-r md:border-white/20 md:pr-12">
-                  <div className="text-6xl font-bold">{rating}</div>
+                  <div className="font-display text-7xl font-semibold leading-none">{rating}</div>
                   <div className="mt-2 flex justify-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
@@ -430,7 +449,8 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
       <section className="py-20 md:py-28">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 md:grid-cols-2">
           <Reveal>
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <Eyebrow color={primary}>Visite-nos</Eyebrow>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-slate-900 md:text-[2.6rem]">
               Onde nos encontrar
             </h2>
             <div className="mt-6 space-y-4 text-slate-600">
@@ -483,7 +503,7 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
               <SmartImg src={imgs[2] ?? imgs[0]} grad={grad} className="absolute inset-0" />
               <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${primary}f2, ${secondary}e6)` }} />
               <div className="relative">
-                <h3 className="text-2xl font-bold md:text-3xl">Vamos conversar?</h3>
+                <h3 className="font-display text-3xl font-semibold md:text-4xl">Vamos conversar?</h3>
                 <p className="mt-3 text-white/90">
                   Atendimento rápido e sem compromisso. Chame no WhatsApp e tire suas
                   dúvidas agora mesmo.
@@ -516,9 +536,12 @@ export function ProposalSite({ lead }: { lead: PublicLead }) {
       <footer className="bg-slate-900 py-10 text-slate-300">
         <div className="mx-auto max-w-6xl px-5">
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-            <div>
-              <p className="text-lg font-semibold text-white">{lead.company_name}</p>
-              {cityLabel && <p className="text-sm text-slate-400">{cityLabel}</p>}
+            <div className="flex items-center gap-3">
+              <LogoMark src={logo} letter={lead.company_name.charAt(0)} grad={grad} />
+              <div>
+                <p className="font-display text-xl font-semibold text-white">{lead.company_name}</p>
+                {cityLabel && <p className="text-sm text-slate-400">{cityLabel}</p>}
+              </div>
             </div>
             <div className="flex flex-wrap gap-4 text-sm">
               {lead.phone && <span className="text-slate-400">{lead.phone}</span>}
