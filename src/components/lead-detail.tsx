@@ -47,6 +47,7 @@ import {
   websiteMeta,
   timeAgo,
   proposalStatus,
+  proposalUrl,
 } from "@/lib/utils";
 import {
   updateLead,
@@ -149,7 +150,7 @@ export function LeadDetail({
   }
 
   function genEmail() {
-    const url = `${window.location.origin}/proposta/${lead.id}`;
+    const url = proposalUrl(lead.id);
     startEmail(async () => {
       const res = await generateProposalEmail(lead.id, url);
       if (res?.error) toast.error(res.error);
@@ -168,7 +169,7 @@ export function LeadDetail({
   }
 
   function copyProposal() {
-    const url = `${window.location.origin}/proposta/${lead.id}`;
+    const url = proposalUrl(lead.id);
     navigator.clipboard.writeText(url).then(
       () => toast.success("Link do site copiado!"),
       () => toast.error("Não foi possível copiar o link")

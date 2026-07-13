@@ -64,6 +64,19 @@ export function websiteMeta(w: string | null | undefined) {
   return WEBSITE_META[w ?? "sem_site"] ?? WEBSITE_META.sem_site;
 }
 
+/**
+ * Public URL of a lead's proposal. Uses NEXT_PUBLIC_PROPOSAL_BASE_URL when set
+ * (your custom domain / subdomain), so links copied and e-mailed to clients
+ * always use the pretty domain regardless of where the CRM itself runs. Falls
+ * back to the current origin.
+ */
+export function proposalUrl(id: string): string {
+  const base = (process.env.NEXT_PUBLIC_PROPOSAL_BASE_URL || "").replace(/\/+$/, "");
+  const origin =
+    base || (typeof window !== "undefined" ? window.location.origin : "");
+  return `${origin}/proposta/${id}`;
+}
+
 export type ProposalState = "none" | "ready" | "sent" | "followup" | "discard";
 
 export interface ProposalStatus {
